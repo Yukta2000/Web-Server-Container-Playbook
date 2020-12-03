@@ -1,0 +1,77 @@
+- hosts: all
+  tasks:
+  
+#configure yum repository for docker
+ 
+
+  - name: "Configuring yum repository for docker" 
+    yum_repository:
+      baseurl: "https://download.docker.com/linux/centos/7/x86_64/stable"
+      name: "docker"
+      description: "Repo for docker"
+      gpgcheck: no
+  
+  - yum_repository:
+      baseurl: "file:///run/media/root/RHEL-8-0-0-BaseOS-x86_64/AppStream"
+      name: "dvd1"
+      description: "AppStream dvd"
+      gpgcheck: no
+
+  - yum_repository:
+      baseurl: "file:///run/media/root/RHEL-8-0-0-BaseOS-x86_64/BaseOS"
+      name: "dvd2"
+      description: "BaseOS dvd"
+      gpgcheck: no
+      
+#modify yum conf file
+  - name: "Changing best=False in yum.conf" 
+    lineinfile:
+      path: /etc/yum.conf
+      regexp: '^best='
+      line: best=False
+#install epel
+  - name: "Installing epel"
+    yum:
+      name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+      state: present
+      disable_gpg_check: yes
+
+
+#install docker
+  - name: "Installing docker" 
+    yum:
+      name: "docker-ce"
+      state: present
+      disable_gpg_check: yes
+#start and enable docker services
+  - name: "Starting and enabling docker services" 
+    service:
+      name: "docker"
+      state: started
+      enabled: yes
+  - name: "Installing Docker sdk"
+    pip:
+      name: "docker"
+#pull docker image
+  - name: "Pulling httpd server image" 
+    docker_image:
+      name: "httpd"
+#making a directory web 
+  - name: "Creating directory web"
+    file:
+      state: directory
+      path: "/web"
+#send html code to managed node
+  - name: "Sending html code to managed node"
+    copy:
+      dest: "/web/webpage.html"
+      content: "Welcome to my Web page!!!"
+#Launch docker container and expose it to public
+#copy html to container from managed node
+  - name: "Launch docker container" 
+    shell: "docker run -dit --name WebScont -p 8080:80 -v /web/:/usr/local/apache2/htdocs/ httpd"
+
+   
+
+ 
+       
