@@ -67,7 +67,7 @@
       dest: "/web/webpage.html"
       content: "Welcome to my Web page!!!"
 #Launch docker container and expose it to public
-#copy html to container from managed node
+
   - name: "Launch docker container" 
     shell: "docker run -dit --name WebScont -p 8080:80 -v /web/:/usr/local/apache2/htdocs/ httpd"
 
